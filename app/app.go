@@ -110,6 +110,9 @@ import (
 	gitshockmodule "gitshock/x/gitshock"
 	gitshockmodulekeeper "gitshock/x/gitshock/keeper"
 	gitshockmoduletypes "gitshock/x/gitshock/types"
+	incentivesmodule "gitshock/x/incentives"
+	incentivesmodulekeeper "gitshock/x/incentives/keeper"
+	incentivesmoduletypes "gitshock/x/incentives/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
 	appparams "gitshock/app/params"
@@ -170,6 +173,7 @@ var (
 		vesting.AppModuleBasic{},
 		gitshockmodule.AppModuleBasic{},
 		dexmodule.AppModuleBasic{},
+		incentivesmodule.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -243,9 +247,11 @@ type App struct {
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
 
-	GitshockKeeper  gitshockmodulekeeper.Keeper
-	ScopedDexKeeper capabilitykeeper.ScopedKeeper
-	DexKeeper       dexmodulekeeper.Keeper
+	GitshockKeeper         gitshockmodulekeeper.Keeper
+	ScopedDexKeeper        capabilitykeeper.ScopedKeeper
+	DexKeeper              dexmodulekeeper.Keeper
+	ScopedIncentivesKeeper capabilitykeeper.ScopedKeeper
+	IncentivesKeeper       incentivesmodulekeeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// mm is the module manager
@@ -292,6 +298,7 @@ func New(
 		icacontrollertypes.StoreKey,
 		gitshockmoduletypes.StoreKey,
 		dexmoduletypes.StoreKey,
+		incentivesmoduletypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -531,6 +538,20 @@ func New(
 	dexModule := dexmodule.NewAppModule(appCodec, app.DexKeeper, app.AccountKeeper, app.BankKeeper)
 
 	dexIBCModule := dexmodule.NewIBCModule(app.DexKeeper)
+	scopedIncentivesKeeper := app.CapabilityKeeper.ScopeToModule(incentivesmoduletypes.ModuleName)
+	app.ScopedIncentivesKeeper = scopedIncentivesKeeper
+	app.IncentivesKeeper = *incentivesmodulekeeper.NewKeeper(
+		appCodec,
+		keys[incentivesmoduletypes.StoreKey],
+		keys[incentivesmoduletypes.MemStoreKey],
+		app.GetSubspace(incentivesmoduletypes.ModuleName),
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		scopedIncentivesKeeper,
+	)
+	incentivesModule := incentivesmodule.NewAppModule(appCodec, app.IncentivesKeeper, app.AccountKeeper, app.BankKeeper)
+
+	incentivesIBCModule := incentivesmodule.NewIBCModule(app.IncentivesKeeper)
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
 	// Sealing prevents other modules from creating scoped sub-keepers
@@ -541,6 +562,7 @@ func New(
 	ibcRouter.AddRoute(icahosttypes.SubModuleName, icaHostIBCModule).
 		AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
 	ibcRouter.AddRoute(dexmoduletypes.ModuleName, dexIBCModule)
+	ibcRouter.AddRoute(incentivesmoduletypes.ModuleName, incentivesIBCModule)
 	// this line is used by starport scaffolding # ibc/app/router
 	app.IBCKeeper.SetRouter(ibcRouter)
 
@@ -579,6 +601,7 @@ func New(
 		icaModule,
 		gitshockModule,
 		dexModule,
+		incentivesModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -610,6 +633,7 @@ func New(
 		vestingtypes.ModuleName,
 		gitshockmoduletypes.ModuleName,
 		dexmoduletypes.ModuleName,
+		incentivesmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -636,6 +660,7 @@ func New(
 		vestingtypes.ModuleName,
 		gitshockmoduletypes.ModuleName,
 		dexmoduletypes.ModuleName,
+		incentivesmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -667,6 +692,7 @@ func New(
 		vestingtypes.ModuleName,
 		gitshockmoduletypes.ModuleName,
 		dexmoduletypes.ModuleName,
+		incentivesmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
@@ -698,6 +724,7 @@ func New(
 		transferModule,
 		gitshockModule,
 		dexModule,
+		incentivesModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 	app.sm.RegisterStoreDecoders()
@@ -898,6 +925,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(gitshockmoduletypes.ModuleName)
 	paramsKeeper.Subspace(dexmoduletypes.ModuleName)
+	paramsKeeper.Subspace(incentivesmoduletypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper

@@ -2,11 +2,13 @@
 
 import GitshockDex from './gitshock.dex'
 import GitshockGitshock from './gitshock.gitshock'
+import GitshockIncentives from './gitshock.incentives'
 
 
 export default { 
   GitshockDex: load(GitshockDex, 'gitshock.dex'),
   GitshockGitshock: load(GitshockGitshock, 'gitshock.gitshock'),
+  GitshockIncentives: load(GitshockIncentives, 'gitshock.incentives'),
   
 }
 
