@@ -1,0 +1,15 @@
+syntax = "proto3";
+package gitshock.dex;
+
+import "gogoproto/gogo.proto";
+import "gitshock/dex/params.proto";
+// this line is used by starport scaffolding # genesis/proto/import
+
+option go_package = "gitshock/x/dex/types";
+
+// GenesisState defines the dex module's genesis state.
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+  string port_id = 2;
+  // this line is used by starport scaffolding # genesis/proto/state
+}

@@ -1,9 +1,11 @@
 // THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
 
+import GitshockDex from './gitshock.dex'
 import GitshockGitshock from './gitshock.gitshock'
 
 
 export default { 
+  GitshockDex: load(GitshockDex, 'gitshock.dex'),
   GitshockGitshock: load(GitshockGitshock, 'gitshock.gitshock'),
   
 }
