@@ -1,11 +1,13 @@
 // THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
 
+import GitshockClaims from './gitshock.claims'
 import GitshockDex from './gitshock.dex'
 import GitshockGitshock from './gitshock.gitshock'
 import GitshockIncentives from './gitshock.incentives'
 
 
 export default { 
+  GitshockClaims: load(GitshockClaims, 'gitshock.claims'),
   GitshockDex: load(GitshockDex, 'gitshock.dex'),
   GitshockGitshock: load(GitshockGitshock, 'gitshock.gitshock'),
   GitshockIncentives: load(GitshockIncentives, 'gitshock.incentives'),

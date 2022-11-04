@@ -1,0 +1,12 @@
+syntax = "proto3";
+package gitshock.claims;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "gitshock/x/claims/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+  
+}

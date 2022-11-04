@@ -104,6 +104,9 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
+	claimsmodule "gitshock/x/claims"
+	claimsmodulekeeper "gitshock/x/claims/keeper"
+	claimsmoduletypes "gitshock/x/claims/types"
 	dexmodule "gitshock/x/dex"
 	dexmodulekeeper "gitshock/x/dex/keeper"
 	dexmoduletypes "gitshock/x/dex/types"
@@ -174,6 +177,7 @@ var (
 		gitshockmodule.AppModuleBasic{},
 		dexmodule.AppModuleBasic{},
 		incentivesmodule.AppModuleBasic{},
+		claimsmodule.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -252,6 +256,8 @@ type App struct {
 	DexKeeper              dexmodulekeeper.Keeper
 	ScopedIncentivesKeeper capabilitykeeper.ScopedKeeper
 	IncentivesKeeper       incentivesmodulekeeper.Keeper
+	ScopedClaimsKeeper     capabilitykeeper.ScopedKeeper
+	ClaimsKeeper           claimsmodulekeeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// mm is the module manager
@@ -299,6 +305,7 @@ func New(
 		gitshockmoduletypes.StoreKey,
 		dexmoduletypes.StoreKey,
 		incentivesmoduletypes.StoreKey,
+		claimsmoduletypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -552,6 +559,20 @@ func New(
 	incentivesModule := incentivesmodule.NewAppModule(appCodec, app.IncentivesKeeper, app.AccountKeeper, app.BankKeeper)
 
 	incentivesIBCModule := incentivesmodule.NewIBCModule(app.IncentivesKeeper)
+	scopedClaimsKeeper := app.CapabilityKeeper.ScopeToModule(claimsmoduletypes.ModuleName)
+	app.ScopedClaimsKeeper = scopedClaimsKeeper
+	app.ClaimsKeeper = *claimsmodulekeeper.NewKeeper(
+		appCodec,
+		keys[claimsmoduletypes.StoreKey],
+		keys[claimsmoduletypes.MemStoreKey],
+		app.GetSubspace(claimsmoduletypes.ModuleName),
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		scopedClaimsKeeper,
+	)
+	claimsModule := claimsmodule.NewAppModule(appCodec, app.ClaimsKeeper, app.AccountKeeper, app.BankKeeper)
+
+	claimsIBCModule := claimsmodule.NewIBCModule(app.ClaimsKeeper)
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
 	// Sealing prevents other modules from creating scoped sub-keepers
@@ -563,6 +584,7 @@ func New(
 		AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
 	ibcRouter.AddRoute(dexmoduletypes.ModuleName, dexIBCModule)
 	ibcRouter.AddRoute(incentivesmoduletypes.ModuleName, incentivesIBCModule)
+	ibcRouter.AddRoute(claimsmoduletypes.ModuleName, claimsIBCModule)
 	// this line is used by starport scaffolding # ibc/app/router
 	app.IBCKeeper.SetRouter(ibcRouter)
 
@@ -602,6 +624,7 @@ func New(
 		gitshockModule,
 		dexModule,
 		incentivesModule,
+		claimsModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -634,6 +657,7 @@ func New(
 		gitshockmoduletypes.ModuleName,
 		dexmoduletypes.ModuleName,
 		incentivesmoduletypes.ModuleName,
+		claimsmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -661,6 +685,7 @@ func New(
 		gitshockmoduletypes.ModuleName,
 		dexmoduletypes.ModuleName,
 		incentivesmoduletypes.ModuleName,
+		claimsmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -693,6 +718,7 @@ func New(
 		gitshockmoduletypes.ModuleName,
 		dexmoduletypes.ModuleName,
 		incentivesmoduletypes.ModuleName,
+		claimsmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
@@ -725,6 +751,7 @@ func New(
 		gitshockModule,
 		dexModule,
 		incentivesModule,
+		claimsModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 	app.sm.RegisterStoreDecoders()
@@ -926,6 +953,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(gitshockmoduletypes.ModuleName)
 	paramsKeeper.Subspace(dexmoduletypes.ModuleName)
 	paramsKeeper.Subspace(incentivesmoduletypes.ModuleName)
+	paramsKeeper.Subspace(claimsmoduletypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper

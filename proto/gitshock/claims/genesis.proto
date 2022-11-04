@@ -1,0 +1,15 @@
+syntax = "proto3";
+package gitshock.claims;
+
+import "gogoproto/gogo.proto";
+import "gitshock/claims/params.proto";
+// this line is used by starport scaffolding # genesis/proto/import
+
+option go_package = "gitshock/x/claims/types";
+
+// GenesisState defines the claims module's genesis state.
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+  string port_id = 2;
+  // this line is used by starport scaffolding # genesis/proto/state
+}
