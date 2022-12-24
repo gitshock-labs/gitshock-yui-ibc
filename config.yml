@@ -1,12 +1,12 @@
 version: 1
 accounts:
   - name: alice
-    coins: ["20000token", "200000000stake"]
-  - name: bob
-    coins: ["10000token", "100000000stake"]
+    coins: ["1000000000uatom", "650000000000ugtfx"]
+  - name: joy
+    coins: ["1000000000uatom", "650000000000ugtfx"]
 validators:
   - name: alice
-    bonded: "100000000stake"
+    bonded: "100000000ugtfx"
 client:
   openapi:
     path: "docs/static/openapi.yml"
@@ -15,5 +15,22 @@ client:
   vuex:
     path: "vue/src/store"
 faucet:
-  name: bob
-  coins: ["5token", "100000stake"]
+  name: joy
+  coins: ["100000000ugtfx"]
+genesis:
+  chain_id: "gitshock-1"
+  app_state:
+    staking:
+      params:
+        bond_denom: "ugtfx"
+    crisis:
+      constant_fee:
+        denom: "ugtfx"
+    gov:
+      deposit_params:
+        min_deposit:
+          - "amount": "100000"
+            "denom": "ugtfx"
+    mint:
+      params:
+        mint_denom: "ugtfx"

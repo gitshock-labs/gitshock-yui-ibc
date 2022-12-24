@@ -26,7 +26,7 @@ interface TxClientOptions {
 	signer?: OfflineSigner
 }
 
-export const txClient = ({ signer, prefix, addr }: TxClientOptions = { addr: "http://localhost:26657", prefix: "cosmos" }) => {
+export const txClient = ({ signer, prefix, addr }: TxClientOptions = { addr: "http://0.0.0.0:26657", prefix: "cosmos" }) => {
 
   return {
 		

@@ -29,7 +29,7 @@ interface SignAndBroadcastOptions {
   memo?: string
 }
 
-const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions = { addr: "http://localhost:26657" }) => {
+const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions = { addr: "http://0.0.0.0:26657" }) => {
   if (!wallet) throw MissingWalletError;
   let client;
   if (addr) {
